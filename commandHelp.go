@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func commandHelp() error {
+func commandHelp(p player) error {
 	commands := getCommands()
 	for key, value := range commands {
 		fmt.Print(key, ": ", value.name, "   ", value.description, "\n")

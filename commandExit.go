@@ -4,7 +4,7 @@ import (
 	"os"
 )
 
-func commandExit() error {
+func commandExit(p player) error {
 	os.Exit(1)
 	return nil
 }

@@ -1,5 +1,6 @@
 package main
 
 func main() {
-	repl()
+	p := player{id: 0, posId: 1, posMaxId: 868}
+	repl(p)
 }

@@ -7,16 +7,16 @@ import (
 	"strings"
 )
 
-func repl() {
+func repl(p player) {
 	reader := bufio.NewScanner(os.Stdin)
 	for {
 		fmt.Print("Pokedex >")
 		reader.Scan()
 		text := cleanText(reader.Text())
-		err := getCommands()[text[0]].do()
+		err := getCommands()[text[0]].do(p)
 		if err != nil {
 			fmt.Println(err)
-			os.Exit(0)
+			os.Exit(1)
 		}
 	}
 }
