@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type location struct {
@@ -89,25 +90,31 @@ func commandMapF(p player) error {
 	return nil
 }
 
-func commandMapB(p player) error {
+func commandMapB(c *cache, p player) error {
 	for i := 0; i < 20 && p.posId > 1; i++ {
 		p.posId--
-		res, err := http.Get("https://pokeapi.co/api/v2/location/" + strconv.Itoa(p.posId))
-		if err != nil {
-			return err
-		}
-		body, err := io.ReadAll(res.Body)
-		res.Body.Close()
-		if res.StatusCode > 299 {
-			fmt.Printf("Response failed with status code: %d and\nbody: %s\n", res.StatusCode, body)
-			return err
-		}
-		if err != nil {
-			fmt.Print("commandMapF IO error")
-			return err
+		var body []byte
+		if !c.info["https://pokeapi.co/api/v2/location/"+strconv.Itoa(p.posId)] {
+			res, err := http.Get("https://pokeapi.co/api/v2/location/" + strconv.Itoa(p.posId))
+			if err != nil {
+				return err
+			}
+			body, err := io.ReadAll(res.Body)
+			res.Body.Close()
+			if res.StatusCode > 299 {
+				fmt.Printf("Response failed with status code: %d and\nbody: %s\n", res.StatusCode, body)
+				return err
+			}
+			if err != nil {
+				fmt.Print("commandMapF IO error")
+				return err
+			}
+			c.add("https://pokeapi.co/api/v2/location/"+strconv.Itoa(p.posId), 5*time.Second, body)
+		} else {
+			body = c.info["https://pokeapi.co/api/v2/location/"+strconv.Itoa(p.posId)]
 		}
 		var obj location
-		err = json.Unmarshal(body, &obj)
+		err := json.Unmarshal(body, &obj)
 		if err != nil {
 			fmt.Print("commandMapF unmarshal error")
 			return err
